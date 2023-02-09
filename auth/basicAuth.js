@@ -1,13 +1,10 @@
-const express = require('express');
 const bcrypt = require('bcrypt');
-const validate = require('../routes/users.js')
 const mysql = require('mysql');
-const connection = require('../db/connect.js');
-
-const app = express();
+const { validatePassword, validateEmail} = require('../validation/validation');
+const {User} = require('../models')
 
 // Basic HTTP authentication middleware
-const auth = app.use((req, res, next) => {
+const auth = async (req, res, next) => {
     if (req.method === 'PUT' || req.method === 'GET') {
 
         if(!req.get('Authorization')){
@@ -30,58 +27,60 @@ const auth = app.use((req, res, next) => {
             var username = creds[0];
             var password = creds[1];
 
-            var url = req.url.split('/');
-
-            let userid = url[url.length-1];
+            var userid = req.params.userId;
 
             let PasswordErr = validatePassword(password);
             let UsernameErr = validateEmail(username);
 
             if(UsernameErr && PasswordErr) {
 
-                    const sqlGetUserData = `SELECT iduser,username,password  FROM menagerie.user WHERE username = ?`;
-                    const getQuery = mysql.format(sqlGetUserData,[username]); 
 
-                    connection.query(getQuery, function(err,result){
-                        if(err) throw err;
-                        if(result.length == 0){
-                            var err = new Error('Not Authenticated!')
-                            // Set status code to '401 Unauthorized' and 'WWW-Authenticate' header to 'Basic'
-                            res.status(401).set('WWW-Authenticate', 'Basic')
-                            res.send("The username doesn't exists")
-                            next(err)
-                        }else{
-                            if(userid == result[0].iduser){
-                                if(username == result[0].username){
-                                    const hashedPassword = result[0].password;
-                                    bcrypt.compare(password, hashedPassword, function (err, result) {
-                                        if (result === true) {
-                                            next()
-                                            console.log("Authenticated")
-                                        } else {
-                                            var err = new Error('Not Authenticated!')
-                                            // Set status code to '401 Unauthorized' and 'WWW-Authenticate' header to 'Basic'
-                                            res.status(401).set('WWW-Authenticate', 'Basic')
-                                            res.send("The password is wrong in Authorization")
-                                            next(err)
-                                        }
-                                    });
-                                }else{
+                var userFound = await User.findOne({
+                    where: { username: username },
+                }).catch((err) => {
+                    if(err){
+                        console.log(err);
+                    }
+                });
+
+                if(userFound == null){
+                    var err = new Error('Not Authenticated!')
+                    // Set status code to '401 Unauthorized' and 'WWW-Authenticate' header to 'Basic'
+                    res.status(401).set('WWW-Authenticate', 'Basic')
+                    res.send("The username doesn't exists")
+                    next(err)
+                }else{
+                    if(userid == userFound.id){
+                        if(username == userFound.username){
+                            const hashedPassword = userFound.password;
+                            bcrypt.compare(password, hashedPassword, function (err, result) {
+                                if (result === true) {
+                                    next()
+                                    console.log("Authenticated")
+                                } else {
                                     var err = new Error('Not Authenticated!')
                                     // Set status code to '401 Unauthorized' and 'WWW-Authenticate' header to 'Basic'
                                     res.status(401).set('WWW-Authenticate', 'Basic')
-                                    res.send("The username is wrong in Authorization")
+                                    res.send("The password is wrong in Authorization")
                                     next(err)
                                 }
-                            } else{
-                                var err = new Error('Not Authenticated!')
-                                // Set status code to '401 Unauthorized' and 'WWW-Authenticate' header to 'Basic'
-                                res.status(403)
-                                res.send("The userid is wrong in the parameter")
-                                next(err)
-                            }                          
+                            });
+                        }else{
+                            var err = new Error('Not Authenticated!')
+                            // Set status code to '401 Unauthorized' and 'WWW-Authenticate' header to 'Basic'
+                            res.status(401).set('WWW-Authenticate', 'Basic')
+                            res.send("The username is wrong in Authorization")
+                            next(err)
                         }
-                    });
+                    } else{
+                        var err = new Error('Not Authenticated!')
+                        // Set status code to '401 Unauthorized' and 'WWW-Authenticate' header to 'Basic'
+                        res.status(403)
+                        res.send("The userid is wrong in the parameter")
+                        next(err)
+                    }                          
+                }
+                
             }else{
                 res.status(401).send("Invalid email or password in Authorization");
             }
@@ -89,27 +88,6 @@ const auth = app.use((req, res, next) => {
     }else {
         next();
     }
-})
-
-function validatePassword(password) {
-	let passwordValue = password;
-	var password_regex1=/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
-
-	if(password_regex1.test(passwordValue)==false){
-		return false;
-	}else{
-		return true;
-	}
-
-}
-
-function validateEmail(email){
-    let regex = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-	if (regex.test(email) == false) {
-	return false;
-	} else {
-	return true;
-	}
-}
+};
 
 module.exports = auth;
