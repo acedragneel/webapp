@@ -1,6 +1,6 @@
 # webapp
 
-Cloud API
+Cloud REST API
 A simple user management system built using Node.js, Express, and MySQL.
 
 Getting Started
