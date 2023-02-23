@@ -1,3 +1,61 @@
+# name: Packer Build
+
+# on:
+#   pull_request:
+#     types: [closed]
+#     branches:
+#       - main
+
+# jobs:
+#   test:
+#     runs-on: ubuntu-latest
+
+#     # services:
+#     #     mysql:
+#     #       image: mysql:latest
+#     #       ports:
+#     #         - 3306:3306
+
+#     # env:
+#     #   # mysql://user:password@host:port/database
+#     #   DATABASE_URL: "mysql://root:Abhi@123@localhost:3306/menagerie"
+
+#     steps:
+#     - uses: actions/checkout@v2
+#     - name: Use Node.js
+#       uses: actions/setup-node@v2
+#       with:
+#         node-version: 16
+#     - name: Install dependencies
+#       run: |
+#         npm install express mysql bcrypt body-parser jest supertest dotenv portfinder nodemon sequelize sequelize-cli mysql mysql2 path fs
+#         npm i --save express-validator
+#     - name: Run unit tests
+#       run: |
+#         npm test
+#     - name: Health check test
+#       run: |
+#         npm test healthcheck.test.js
+
+#   packer-build:
+#     name: Packer Build
+#     runs-on: ubuntu-latest
+#     env:
+#       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#     # if: github.event.pull_request.merged == true
+#     steps:
+
+#     - name: Checkout code
+#       uses: actions/checkout@v2
+#     - name: Install Packer
+#       run: sudo apt-get update && sudo apt-get install -y packer
+#     - name: Initialize packer
+#       run: packer init packer
+#     - name: Build Packer image
+#       run: packer build packer/aws-ami.pkr.hcl
+
+
 name: Packer Build
 
 on:
@@ -6,51 +64,32 @@ on:
     branches:
       - main
 
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  # AWS_REGION: us-east-1
+  # SOURCE_AMI: ami-0dfcb1ef8550277af
+  # ARTIFACT_NAME: ../webapp.zip
+
 jobs:
-  test:
+  build:
+    name: packer build
     runs-on: ubuntu-latest
 
-    # services:
-    #     mysql:
-    #       image: mysql:latest
-    #       ports:
-    #         - 3306:3306
-
-    # env:
-    #   # mysql://user:password@host:port/database
-    #   DATABASE_URL: "mysql://root:Abhi@123@localhost:3306/menagerie"
-
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: 16
-    - name: Install dependencies
-      run: |
-        npm install express mysql bcrypt body-parser jest supertest dotenv portfinder nodemon sequelize sequelize-cli mysql mysql2 path fs
-        npm i --save express-validator
-    - name: Run unit tests
-      run: |
-        npm test
-    - name: Health check test
-      run: |
-        npm test healthcheck.test.js
+      - name: Checkout Git Repository
+        uses: actions/checkout@v2
+      # # - run: zip -r webapp.zip *.js *.json
+      # - name: Zip Git Repository
+      #   uses: montudor/action-zip@v1
+      #   with:
+      #     args: zip -r webapp.zip .
+      #     source: .
+      #     destination: .
 
-  packer-build:
-    name: Packer Build
-    runs-on: ubuntu-latest
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    # if: github.event.pull_request.merged == true
-    steps:
-
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Install Packer
-      run: sudo apt-get update && sudo apt-get install -y packer
-    - name: Initialize packer
-      run: packer init packer
-    - name: Build Packer image
-      run: packer build packer/aws-ami.pkr.hcl
+      - name: Packer Build
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: build
+          target: aws-ami.pkr.hcl
+          working_directory: ./packer/
