@@ -53,5 +53,6 @@ Express
 MySQL
 dotenv
 bcrypt
+fs
 Author
 Abhilash G P
