@@ -9,11 +9,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    services:
-        mysql:
-          image: mysql:latest
-          ports:
-            - 3306:3306
+    # services:
+    #     mysql:
+    #       image: mysql:latest
+    #       ports:
+    #         - 3306:3306
 
     # env:
     #   # mysql://user:password@host:port/database
