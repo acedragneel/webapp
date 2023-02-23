@@ -82,12 +82,15 @@ const checkResponseForPostProduct =  (response) =>{
 
 const validateQuantity =  (quantity) =>{
 
-    if(quantity <= 0 || quantity > 100){
-        return false
+    if(isNaN(quantity)){
+        return false;
     }else{
-        return true
+        if(quantity <= 0 || quantity > 100){
+            return false
+        }else{
+            return true
+        }
     }
-
 }
 
 const validateQuantityPatch =  (quantity) =>{
@@ -95,10 +98,14 @@ const validateQuantityPatch =  (quantity) =>{
     if(quantity == null){
         return true
     }else{
-        if(quantity <= 0 || quantity > 100){
-            return false
+        if(isNaN(quantity)){
+            return false;
         }else{
-            return true
+            if(quantity <= 0 || quantity > 100){
+                return false
+            }else{
+                return true
+            }
         }
     }
 
