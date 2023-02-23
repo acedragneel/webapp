@@ -54,4 +54,4 @@ MySQL
 dotenv
 bcrypt
 Author
-Abhilash Gowdru Palakshappa
+Abhilash G P
