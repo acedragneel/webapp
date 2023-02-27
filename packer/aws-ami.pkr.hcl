@@ -10,6 +10,7 @@
 variable "ami_users" {
   type    = list(string)
   default = ["320737828793", "954337477533"]
+}
 
 
 variable "region" {
