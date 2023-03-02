@@ -12,7 +12,6 @@ variable "ami_users" {
   default = ["320737828793", "954337477533"]
 }
 
-
 variable "region" {
   type    = string
   default = "us-east-1"
