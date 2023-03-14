@@ -37,7 +37,7 @@ Running the app
 Start the application:
 
 sql
-Copy code
+Copy the code
 npm start
 The app should now be running at http://localhost:3000 or any port that is empty .
 
