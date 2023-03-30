@@ -9,9 +9,10 @@ const {Product,User,Images} = require('../models')
 const {deleteFile} = require('../aws/s3')
 
 const logger = require('../logger/logger')
-
+const {client} = require('../aws/cloud-watch')
 
 const PostAllProducts = async (req,res) => {
+    client.increment('product_create');
     const response = req.body;
     const name = req.body.name;
     const description = req.body.description;
@@ -107,6 +108,7 @@ const PostAllProducts = async (req,res) => {
 
 
 const GetAllProducts = async (req,res) => { 
+    client.increment('product_get');
     const productId = req.params.productId;
     const error = "Invalid id"
 
@@ -141,7 +143,7 @@ const GetAllProducts = async (req,res) => {
 };
 
 const PutAllProducts = async (req,res) => {
-    
+    client.increment('product_put');
     const response = req.body;
     const name = req.body.name;
     const description = req.body.description;
@@ -260,7 +262,7 @@ const PutAllProducts = async (req,res) => {
 };
 
 const PatchAllProducts = async (req,res) => {
-    
+    client.increment('product_patch');
     const response = req.body;
     const name = req.body.name;
     const description = req.body.description;
@@ -368,7 +370,8 @@ const PatchAllProducts = async (req,res) => {
     }
 };
 
-const DeleteAllProducts = async (req,res) => { 
+const DeleteAllProducts = async (req,res) => {
+    client.increment('product_delete'); 
     const productId = req.params.productId;
     const error = "Invalid id"
 
