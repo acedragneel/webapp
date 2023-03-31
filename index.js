@@ -20,14 +20,6 @@ health(app);
 
 app.use(bodyParser.json());
 
-// // Example API endpoints
-// const apiEndpoints = ['/v1/product/:productId/image', 'v1/product/:productId/image/:imageId', 'v1/product/:productId/image'
-// , 'v1/product/:productId', 'v1/product/','v1/user/:userId', 'v1/user','/healthz'];
-
-// apiEndpoints.forEach((apiEndpoint) => {
-//   app.use(apiEndpoint, countApiRequests);
-// });
-
 app.use('/v1',usersRoutes);
 
 app.use('/v1',productRoutes);
