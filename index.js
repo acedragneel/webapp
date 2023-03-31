@@ -9,9 +9,14 @@ const health = require('./health.js');
 
 const db = require('./models')
 
+const logger = require('./logger/logger')
+
 const app = express();
 
+logger.customlogger.info("Application Started")
+
 health(app);
+
 
 app.use(bodyParser.json());
 

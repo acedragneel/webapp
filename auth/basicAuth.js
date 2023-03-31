@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const mysql = require('mysql');
 const { validatePassword, validateEmail} = require('../validation/validation');
 const {User} = require('../models')
+const logger = require('../logger/logger')
 
 // Basic HTTP authentication middleware
 const auth = async (req, res, next) => {
@@ -12,6 +13,7 @@ const auth = async (req, res, next) => {
             // Set status code to '401 Unauthorized' and 'WWW-Authenticate' header to 'Basic'
             res.status(401).set('WWW-Authenticate', 'Basic')
             res.send("Please give Basic Auth with username and password")
+            logger.customlogger.error('Please give Basic Auth with username and password')
             next(err)
         }
         // If 'Authorization' header present
@@ -48,6 +50,7 @@ const auth = async (req, res, next) => {
                     // Set status code to '401 Unauthorized' and 'WWW-Authenticate' header to 'Basic'
                     res.status(401).set('WWW-Authenticate', 'Basic')
                     res.send("The username doesn't exists")
+                    logger.customlogger.error('The username does not exists')
                     next(err)
                 }else{
                     if(userid == userFound.id){
@@ -57,11 +60,13 @@ const auth = async (req, res, next) => {
                                 if (result === true) {
                                     next()
                                     console.log("Authenticated")
+                                    logger.customlogger.info('Valid User is Authenticated')
                                 } else {
                                     var err = new Error('Not Authenticated!')
                                     // Set status code to '401 Unauthorized' and 'WWW-Authenticate' header to 'Basic'
                                     res.status(401).set('WWW-Authenticate', 'Basic')
                                     res.send("The password is wrong in Authorization")
+                                    logger.customlogger.error('The password is wrong in Authorization')
                                     next(err)
                                 }
                             });
@@ -70,6 +75,7 @@ const auth = async (req, res, next) => {
                             // Set status code to '401 Unauthorized' and 'WWW-Authenticate' header to 'Basic'
                             res.status(401).set('WWW-Authenticate', 'Basic')
                             res.send("The username is wrong in Authorization")
+                            logger.customlogger.error('The username is wrong in Authorization')
                             next(err)
                         }
                     } else{
@@ -77,12 +83,14 @@ const auth = async (req, res, next) => {
                         // Set status code to '401 Unauthorized' and 'WWW-Authenticate' header to 'Basic'
                         res.status(403)
                         res.send("The userid is wrong in the parameter")
+                        logger.customlogger.error('The user id is wrong in the parameter')
                         next(err)
                     }                          
                 }
                 
             }else{
                 res.status(401).send("Invalid email or password in Authorization");
+                logger.customlogger.error('Invalid email or password in Authorization')
             }
         }
     }else {
