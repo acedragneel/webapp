@@ -6,6 +6,7 @@ const path = require('path');
 const Sequelize = require('sequelize');
 const process = require('process');
 const basename = path.basename(__filename);
+const logger = require('../logger/logger')
 
 // const env = process.env.NODE_ENV || 'development';
 // const config = require(__dirname + '/../config/config.js')[env];
@@ -20,7 +21,7 @@ const db = {};
 
 // const Sequelize = require("sequelize");
 
-const sequelize = new Sequelize(
+const  sequelize = new Sequelize(
    process.env.DB_DATABASE,
    process.env.DB_USER,
    process.env.DB_PASSWORD,
@@ -30,12 +31,18 @@ const sequelize = new Sequelize(
     }
   );
 
-  try {
-    sequelize.authenticate();
-    console.log('Connection has been established successfully.');
-  } catch (error) {
-    console.error('Unable to connect to the database:', error);
-  }
+  async function testConnection(){
+    try {
+      await sequelize.authenticate();
+      console.log('Connection has been established successfully.');
+      logger.customlogger.info('Connection to the Database has been established successfully.')
+    } catch (error) {
+      logger.customlogger.info('Unable to connect to the database')
+      console.error('Unable to connect to the database:', error);
+    }
+  } 
+
+  testConnection();
 
 fs
   .readdirSync(__dirname)
@@ -57,6 +64,7 @@ Object.keys(db).forEach(modelName => {
     db[modelName].associate(db);
   }
 });
+
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
