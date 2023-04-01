@@ -7,8 +7,10 @@ const {     validateNumber,
 const {User} = require('../models')
 
 const logger = require('../logger/logger')
+const {client} = require('../aws/cloud-watch')
 
 const GetAllUsers = async (req,res) => { 
+    client.increment('get_user');
     const iduser = req.params.userId;
     const error = "Invalid id"
 
@@ -45,6 +47,7 @@ const GetAllUsers = async (req,res) => {
 };
 
 const PostAllUsers = async (req,res) => {
+    client.increment('post_user');
     const response = req.body;
     const firstName = req.body.firstName;
     const lastName = req.body.lastName;
@@ -119,7 +122,7 @@ const PostAllUsers = async (req,res) => {
 };
 
 const PutAllUsers = async (req,res) => {
-    
+    client.increment('put_user');
     const response = req.body;
     const iduser = req.params.userId;
     const firstName = req.body.firstName;

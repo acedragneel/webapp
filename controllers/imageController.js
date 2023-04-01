@@ -15,9 +15,10 @@ const {
 }= require('../validation/validation');
 
 const logger = require('../logger/logger')
+const {client} = require('../aws/cloud-watch')
 
 const PostAllProductImages = (req,res,err) => {
-
+    client.increment('image_create');
     const productId = req.params.productId;
 
     upload(req, res, async function (err) {
@@ -97,6 +98,7 @@ const PostAllProductImages = (req,res,err) => {
 };
 
 const GetImage = async (req,res) => { 
+    client.increment('get_image');
     const productId = req.params.productId;
     const imageId = req.params.imageId;
     const error = "Invalid id's"
@@ -134,6 +136,7 @@ const GetImage = async (req,res) => {
 };
 
 const GetAllImages = async (req,res) => { 
+    client.increment('list_all_images');
     const productId = req.params.productId;
     const error = "Invalid Product id"
 
@@ -165,6 +168,7 @@ const GetAllImages = async (req,res) => {
 };
 
 const DeleteAllImages = async (req,res) => { 
+    client.increment('delete_image');
     const productId = req.params.productId;
     const imageId = req.params.imageId;
     const error = "Invalid id's"
