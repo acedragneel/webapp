@@ -58,7 +58,7 @@ variable "aws_profile" {
 }
 
 source "amazon-ebs" "webapp-ami" {
-  ami_name      = "${var.ami_name}"
+  ami_name      = "${var.ami_name}-${timestamp()}"
   ami_users     = "${var.ami_users}"
   profile       = "${var.aws_profile}"
   instance_type = "${var.instance_type}"
