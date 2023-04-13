@@ -6,6 +6,7 @@ const usersRoutes = require('./routes/users');
 const productRoutes = require('./routes/product');
 const imageRoutes = require('./routes/images');
 const health = require('./health.js');
+const healthz = require('./healthz.js');
 
 const db = require('./models')
 
@@ -15,8 +16,8 @@ const app = express();
 
 logger.customlogger.info("Application Started")
 
+healthz(app);
 health(app);
-
 
 app.use(bodyParser.json());
 
